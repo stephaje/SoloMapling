@@ -149,6 +149,7 @@ import server.partyquest.MonsterCarnival;
 import server.partyquest.MonsterCarnivalParty;
 import server.partyquest.PartyQuest;
 import server.quest.Quest;
+import soloMapling.ArtificialPlayer.BotHelpers;
 import soloMapling.ArtificialPlayer.BotTier;
 import soloMapling.server.EventMessageSystem.EventBus;
 import soloMapling.server.EventMessageSystem.EventFactory;
@@ -3148,6 +3149,9 @@ public class Character extends AbstractCharacterObject {
     }
 
     private synchronized void gainExpInternal(long gain, int equip, int party, boolean show, boolean inChat, boolean white) {   // need of method synchonization here detected thanks to MedicOP
+        if (BotHelpers.isPartyQuestBot(this)) {
+            return;
+        }
         long total = Math.max(gain + equip + party, -exp.get());
 
         if (level < getMaxLevel() && (allowExpGain || this.getEventInstance() != null)) {
@@ -8814,6 +8818,9 @@ public class Character extends AbstractCharacterObject {
     }
 
     public void setExp(int amount) {
+        if (BotHelpers.isPartyQuestBot(this)) {
+            return;
+        }
         this.exp.set(amount);
     }
 
