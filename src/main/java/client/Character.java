@@ -150,6 +150,7 @@ import server.partyquest.MonsterCarnivalParty;
 import server.partyquest.PartyQuest;
 import server.quest.Quest;
 import soloMapling.ArtificialPlayer.BotHelpers;
+import soloMapling.ArtificialPlayer.BotMessagingSystem.CharacterStorage;
 import soloMapling.ArtificialPlayer.BotTier;
 import soloMapling.server.EventMessageSystem.EventBus;
 import soloMapling.server.EventMessageSystem.EventFactory;
@@ -7892,7 +7893,16 @@ public class Character extends AbstractCharacterObject {
         prtLock.lock();
         try {
             if (party != null) {
-                for (Character partychar : this.getPartyMembersOnSameMap()) {
+                int thisMapHash = this.getMap().hashCode();
+                for (PartyCharacter mpc : party.getMembers()) {
+                    Character partychar = mpc.getPlayer();
+                    // Headless bots never enter the channel world, so isLoggedinWorld() is
+                    // always false for them. They still need to show up in the party HP bars.
+                    if (partychar == null || partychar.getMap() == null
+                            || partychar.getMap().hashCode() != thisMapHash
+                            || !(partychar.isLoggedinWorld() || CharacterStorage.botLoggedIn(partychar.getId()))) {
+                        continue;
+                    }
                     sendPacket(PacketCreator.updatePartyMemberHP(partychar.getId(), partychar.getHp(), partychar.getCurrentMaxHp()));
                 }
             }
